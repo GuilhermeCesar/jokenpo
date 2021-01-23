@@ -4,6 +4,7 @@ import lombok.*;
 
 import javax.persistence.*;
 
+import static java.lang.Boolean.TRUE;
 import static javax.persistence.GenerationType.IDENTITY;
 
 @Data
@@ -20,6 +21,10 @@ public class Jogador {
     @GeneratedValue(strategy = IDENTITY)
     private Long id;
 
-    @Column(name = "nome")
+    @Column
     private String nome;
+
+    @Builder.Default
+    @Column
+    private Boolean ativo = TRUE;
 }

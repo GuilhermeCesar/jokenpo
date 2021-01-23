@@ -13,7 +13,6 @@ public class JogadorService {
 
     private final JogadorRepository jogadorRepository;
 
-
     public JogadorDTO cadastrarJogador(CadastroJogadorDTO cadastroJogadorDTO) {
         final var jogador = Jogador.builder()
                 .nome(cadastroJogadorDTO.getNome())
@@ -25,6 +24,7 @@ public class JogadorService {
                 .builder()
                 .idJogador(jogador.getId())
                 .jogador(jogador.getNome())
+                .ativo(jogador.getAtivo())
                 .build();
     }
 }

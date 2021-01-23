@@ -14,6 +14,7 @@ public class JogadorDTO {
 
     Long idJogador;
     String jogador;
+    Boolean ativo;
 
     @JsonPOJOBuilder(withPrefix = "")
     public static class JacksonBuilder {
