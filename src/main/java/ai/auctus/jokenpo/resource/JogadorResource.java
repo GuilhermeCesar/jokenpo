@@ -49,4 +49,14 @@ public class JogadorResource {
     public JogadorDTO buscarJogador(@PathVariable("idJogador") Long idJogador) {
         return this.jogadorService.buscaJogador(idJogador);
     }
+
+    @ResponseStatus(OK)
+    @ApiResponses({
+            @ApiResponse(code = 201, message = "Sucesso", response = JogadorDTO.class),
+            @ApiResponse(code = 500, message = "Falha ao inativar", response = ErrorMessage.class)
+    })
+    @DeleteMapping("/{idJogador}")
+    public JogadorDTO invativar(@PathVariable("idJogador") Long idJogador) {
+        return this.jogadorService.inativarJogador(idJogador);
+    }
 }

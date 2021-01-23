@@ -35,8 +35,17 @@ public class JogadorService {
     }
 
     public JogadorDTO buscaJogador(Long idJogador) {
-        var jogador = jogadorRepository.findById(idJogador)
+        var jogador = this.jogadorRepository.findById(idJogador)
                 .orElseThrow(() -> new JogadorException(HttpStatus.NOT_FOUND, "Jogador não encontrado"));
+
+        return getJogadorDTO(jogador);
+    }
+
+    public JogadorDTO inativarJogador(Long idJogador) {
+        var jogador = this.jogadorRepository.findById(idJogador)
+                .orElseThrow(() -> new JogadorException(HttpStatus.NOT_FOUND, "Jogador não encontrado"));
+
+        jogador = this.jogadorRepository.save(jogador.withAtivo(Boolean.FALSE));
 
         return getJogadorDTO(jogador);
     }
