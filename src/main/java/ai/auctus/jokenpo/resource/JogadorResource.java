@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 
 import static org.springframework.http.HttpStatus.CREATED;
+import static org.springframework.http.HttpStatus.OK;
 
 @Validated
 @RequiredArgsConstructor
@@ -35,7 +36,17 @@ public class JogadorResource {
             @ApiResponse(code = 500, message = "Falha ao cadastrar jogador", response = ErrorMessage.class)
     })
     @PostMapping
-    public JogadorDTO create(@Valid @RequestBody CadastroJogadorDTO cadastroJogadorDTO) {
+    public JogadorDTO criar(@Valid @RequestBody CadastroJogadorDTO cadastroJogadorDTO) {
         return this.jogadorService.cadastrarJogador(cadastroJogadorDTO);
+    }
+
+    @ResponseStatus(OK)
+    @ApiResponses({
+            @ApiResponse(code = 201, message = "Sucesso", response = JogadorDTO.class),
+            @ApiResponse(code = 500, message = "Falha ao cadastrar jogador", response = ErrorMessage.class)
+    })
+    @GetMapping("/{idJogador}")
+    public JogadorDTO buscarJogador(@PathVariable("idJogador") Long idJogador) {
+        return this.jogadorService.buscaJogador(idJogador);
     }
 }
