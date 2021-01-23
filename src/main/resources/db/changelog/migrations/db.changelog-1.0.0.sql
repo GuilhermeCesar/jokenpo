@@ -31,3 +31,9 @@ ALTER TABLE jokenpo.partida
 ALTER TABLE jokenpo.partida
     ADD FOREIGN KEY (id_jogo) REFERENCES jokenpo.jogo (id);
 
+
+--changeset medeiros:4
+ALTER TABLE jokenpo.jogo ADD ganhador INT;
+ALTER TABLE jokenpo.jogo ADD FOREIGN KEY (ganhador) REFERENCES jokenpo.jogador (id);
+
+

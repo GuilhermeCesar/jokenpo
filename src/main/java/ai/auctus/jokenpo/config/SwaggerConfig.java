@@ -40,7 +40,7 @@ public class SwaggerConfig {
                 .paths(paths())
                 .build()
                 .tags(
-                        new Tag(SwaggerTags.SESSAO, this.messageHelper.get(SWAGGER_API_JOGADOR))
+                        new Tag(SwaggerTags.JOGADOR, this.messageHelper.get(SWAGGER_API_JOGADOR))
                 )
                 .apiInfo(metaData());
     }
@@ -61,13 +61,12 @@ public class SwaggerConfig {
     }
 
     private Predicate<String> paths() {
-        return PathSelectors.regex("/api/assembleia/v1.*");
+        return PathSelectors.regex("/api/jokenpo/v1.*");
     }
 
     public static class SwaggerTags {
 
-        public static final String SESSAO = "Sessao";
-        public static final String ASSOCIADO = "Associado";
+        public static final String JOGADOR = "Jogador";
 
         private SwaggerTags() {
             super();

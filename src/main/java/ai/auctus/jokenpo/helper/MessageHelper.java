@@ -39,6 +39,7 @@ public class MessageHelper {
         SWAGGER_ORGANIZATION_URL("swagger.organization.url"),
         SWAGGER_EMAIL("swagger.email"),
         SWAGGER_NAME("swagger.name"),
+        ERROR_SERIALIZER_DATA("error.serializer.data"),
         SWAGGER_API_JOGADOR("swagger.api.jogador");
 
         private final String messageKey;
