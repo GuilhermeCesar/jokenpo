@@ -67,6 +67,7 @@ public class SwaggerConfig {
     public static class SwaggerTags {
 
         public static final String JOGADOR = "Jogador";
+        public static final String JOGO = "Jogo";
 
         private SwaggerTags() {
             super();

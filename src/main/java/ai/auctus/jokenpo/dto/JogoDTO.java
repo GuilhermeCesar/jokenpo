@@ -3,23 +3,20 @@ package ai.auctus.jokenpo.dto;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import io.swagger.annotations.ApiModel;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.Value;
+import lombok.With;
 
-import javax.validation.constraints.NotNull;
-
-@NoArgsConstructor
-@AllArgsConstructor
-@Data
+@Value
+@With
+@JsonDeserialize(builder = JogoDTO.JacksonBuilder.class)
 @Builder(builderClassName = "JacksonBuilder")
-@ApiModel(description = "Cadastro de jogador")
-@JsonDeserialize(builder = CadastroJogadorDTO.JacksonBuilder.class)
-public class CadastroJogadorDTO {
+@ApiModel(description = "Mensagem de erro padrão do sistema")
+public class JogoDTO {
 
-    @NotNull
+    Long idJogo;
     String nome;
+    JogadorDTO jogadorDTO;
 
     @JsonPOJOBuilder(withPrefix = "")
     public static class JacksonBuilder {

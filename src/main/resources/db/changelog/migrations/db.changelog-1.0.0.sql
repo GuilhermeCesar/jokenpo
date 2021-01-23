@@ -39,5 +39,8 @@ ALTER TABLE jokenpo.jogo ADD FOREIGN KEY (ganhador) REFERENCES jokenpo.jogador (
 --changeset medeiros:5
 ALTER TABLE jokenpo.jogador ADD ativo BIT
 
+--changeset medeiros:6
+ALTER TABLE jokenpo.jogo ADD ativo BIT
+
 
 
