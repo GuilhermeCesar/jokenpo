@@ -5,14 +5,17 @@ import ai.auctus.jokenpo.dto.FazerJogadaDTO;
 import ai.auctus.jokenpo.dto.JogadaDTO;
 import ai.auctus.jokenpo.dto.JogoDTO;
 import ai.auctus.jokenpo.entity.Jogada;
+import ai.auctus.jokenpo.entity.Jogador;
 import ai.auctus.jokenpo.entity.Jogo;
 import ai.auctus.jokenpo.exception.JogoException;
 import ai.auctus.jokenpo.repository.JogadaRepository;
 import ai.auctus.jokenpo.repository.JogadorRepository;
 import ai.auctus.jokenpo.repository.JogoRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+
+import static java.lang.Boolean.FALSE;
+import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 @RequiredArgsConstructor
 @Service
@@ -37,13 +40,20 @@ public class JogoService {
                 .build();
     }
 
+    private Jogo getJogo(Long idJogo) {
+        final var jogo = this.jogoRepository.findById(idJogo);
+
+        if (jogo.isEmpty()) {
+            throw new JogoException(NOT_FOUND, "Jogo informado não existe");
+        } else if (FALSE.equals(jogo.get().getAtivo())) {
+            throw new JogoException(NOT_FOUND, "Jogo finalizado");
+        }
+        return jogo.get();
+    }
 
     public JogadaDTO jogar(Long idJogo, FazerJogadaDTO fazerJogadaDTO) {
-        final var jogo = this.jogoRepository.findById(idJogo)
-                .orElseThrow(() -> new JogoException(HttpStatus.NOT_FOUND, "Jogo informado não existe"));
-
-        final var jogador = this.jogadorRepository.findById(fazerJogadaDTO.getIdJogador())
-                .orElseThrow(() -> new JogoException(HttpStatus.NOT_FOUND, "Jogador informado não existe"));
+        final var jogo = this.getJogo(idJogo);
+        final var jogador = this.getJogador(fazerJogadaDTO);
 
         var jogada = Jogada
                 .builder()
@@ -61,8 +71,17 @@ public class JogoService {
                 .idJogo(jogo.getId())
                 .jokenpoEnum(fazerJogadaDTO.getJokenpoEnum())
                 .build();
+    }
 
+    private Jogador getJogador(FazerJogadaDTO fazerJogadaDTO) {
+        final var jogador = this.jogadorRepository.findById(fazerJogadaDTO.getIdJogador());
 
+        if (jogador.isEmpty()) {
+            throw new JogoException(NOT_FOUND, "Jogador informado não existe");
+        } else if (FALSE.equals(jogador.get().getAtivo())) {
+            throw new JogoException(NOT_FOUND, "Jogador está inativo");
+        }
+        return jogador.get();
     }
 
 

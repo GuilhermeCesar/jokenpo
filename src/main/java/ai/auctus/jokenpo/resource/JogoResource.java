@@ -33,14 +33,13 @@ public class JogoResource {
         return this.jogoService.cadastrarJogo(cadastroJogadorDTO);
     }
 
-
-    @ApiOperation(value = "${api.jogador.criacao}")
+    @ApiOperation(value = "Jogar")
     @ApiResponses({
             @ApiResponse(code = 201, message = "Sucesso", response = JogadaDTO.class),
             @ApiResponse(code = 500, message = "Falha ao cadastrar jogador", response = ErrorMessage.class)
     })
-    @PostMapping("/jogar/{idJogo)")
-    public JogadaDTO jogar(@PathVariable("idJogo") Long idJogo, @Valid @RequestBody FazerJogadaDTO fazerJogadaDTO) {
+    @PostMapping("/jogar/{idJogo}")
+    public JogadaDTO jogar(@PathVariable("idJogo") Long idJogo, @RequestBody FazerJogadaDTO fazerJogadaDTO) {
         return this.jogoService.jogar(idJogo, fazerJogadaDTO);
     }
 }
