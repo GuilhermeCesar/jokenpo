@@ -1,7 +1,7 @@
 package ai.auctus.jokenpo.resource;
 
 import ai.auctus.jokenpo.dto.*;
-import ai.auctus.jokenpo.service.JogoService;
+import ai.auctus.jokenpo.service.PartidaService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
@@ -22,7 +22,7 @@ import static ai.auctus.jokenpo.config.SwaggerConfig.SwaggerTags.JOGO;
 @Api(tags = JOGO)
 public class PartidaResource {
 
-    private final JogoService jogoService;
+    private final PartidaService jogoService;
 
     @ApiOperation(value = "Criar jogo")
     @ApiResponses({

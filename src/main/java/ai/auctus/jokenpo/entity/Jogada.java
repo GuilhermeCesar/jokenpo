@@ -31,6 +31,6 @@ public class Jogada {
     private Jogador jogador;
 
     @ManyToOne
-    @JoinColumn(name = "id_jogo")
-    private Partida jogo;
+    @JoinColumn(name = "id_turno")
+    private Turno turno;
 }
