@@ -22,6 +22,7 @@ public class Jogada {
     @GeneratedValue(strategy = IDENTITY)
     private Long id;
 
+    @Enumerated(EnumType.STRING)
     @Column
     private JokenpoEnum jogada;
 

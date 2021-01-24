@@ -60,7 +60,9 @@ public class JogoService {
 
         this.jogadaRepository
                 .findJogadaByJogadorAndJogo(jogador, jogo)
-                .orElseThrow(() -> new PartidaException(CONFLICT, "Você já jogou nessa partida"));
+                .ifPresent(jogada -> {
+                    throw new PartidaException(CONFLICT, "Você já jogou nessa partida");
+                });
 
         var jogada = Jogada
                 .builder()
