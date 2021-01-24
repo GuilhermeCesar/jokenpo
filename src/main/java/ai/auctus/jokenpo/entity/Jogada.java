@@ -31,5 +31,5 @@ public class Jogada {
 
     @ManyToOne
     @JoinColumn(name = "id_jogo")
-    private Jogo jogo;
+    private Partida jogo;
 }

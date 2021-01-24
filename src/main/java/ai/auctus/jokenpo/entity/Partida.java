@@ -15,8 +15,8 @@ import static javax.persistence.GenerationType.IDENTITY;
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
-@Table(name = "jogo")
-public class Jogo {
+@Table(name = "partida")
+public class Partida {
 
     @Id
     @GeneratedValue(strategy = IDENTITY)

@@ -17,9 +17,9 @@ import javax.validation.Valid;
 @Validated
 @RequiredArgsConstructor
 @RestController
-@RequestMapping(path = "/v1/jogo", produces = MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(path = "/v1/partida", produces = MediaType.APPLICATION_JSON_VALUE)
 @Api(tags = SwaggerConfig.SwaggerTags.JOGO)
-public class JogoResource {
+public class PartidaResource {
 
     private final JogoService jogoService;
 
