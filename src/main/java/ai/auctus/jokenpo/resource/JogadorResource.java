@@ -1,7 +1,6 @@
 package ai.auctus.jokenpo.resource;
 
 
-import ai.auctus.jokenpo.config.SwaggerConfig;
 import ai.auctus.jokenpo.dto.CadastroJogadorDTO;
 import ai.auctus.jokenpo.dto.ErrorMessage;
 import ai.auctus.jokenpo.dto.JogadorDTO;
@@ -11,20 +10,23 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.MediaType;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 
+import static ai.auctus.jokenpo.config.SwaggerConfig.SwaggerTags.JOGADOR;
 import static org.springframework.http.HttpStatus.CREATED;
 import static org.springframework.http.HttpStatus.OK;
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @Validated
 @RequiredArgsConstructor
 @RestController
-@RequestMapping(path = "/v1/jogador", produces = MediaType.APPLICATION_JSON_VALUE)
-@Api(tags = SwaggerConfig.SwaggerTags.JOGADOR)
+@RequestMapping(path = "/v1/jogador", produces = APPLICATION_JSON_VALUE)
+@Api(tags = JOGADOR)
 public class JogadorResource {
 
     private final JogadorService jogadorService;
@@ -48,6 +50,13 @@ public class JogadorResource {
     @GetMapping("/{idJogador}")
     public JogadorDTO buscarJogador(@PathVariable("idJogador") Long idJogador) {
         return this.jogadorService.buscaJogador(idJogador);
+    }
+
+    @GetMapping("/find")
+    public Page<JogadorDTO> findJogador(@RequestParam(name = "nome", required = false) String nome,
+                                        @RequestParam(name = "ativo", required = false) Boolean ativo,
+                                        Pageable pageable) {
+        return this.jogadorService.buscaJogador(nome, ativo, pageable);
     }
 
     @ResponseStatus(OK)

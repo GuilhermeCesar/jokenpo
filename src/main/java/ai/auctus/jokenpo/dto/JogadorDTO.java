@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 public class JogadorDTO {
 
     Long idJogador;
-    String jogador;
+    String nome;
     Boolean ativo;
 
     @JsonPOJOBuilder(withPrefix = "")

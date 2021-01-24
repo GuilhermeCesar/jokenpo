@@ -58,9 +58,9 @@ public class JogoService {
         final var jogo = this.getJogo(idJogo);
         final var jogador = this.getJogador(fazerJogadaDTO);
 
-        final var jogadaOptional = this.jogadaRepository.findJogadaByJogadorAndJogo(jogador, jogo)
+        this.jogadaRepository
+                .findJogadaByJogadorAndJogo(jogador, jogo)
                 .orElseThrow(() -> new PartidaException(CONFLICT, "Você já jogou nessa partida"));
-
 
         var jogada = Jogada
                 .builder()
@@ -69,9 +69,7 @@ public class JogoService {
                 .jogador(jogador)
                 .build();
 
-
         this.jogadaRepository.save(jogada);
-
 
         return JogadaDTO
                 .builder()

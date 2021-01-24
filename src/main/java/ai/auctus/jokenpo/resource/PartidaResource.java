@@ -1,6 +1,5 @@
 package ai.auctus.jokenpo.resource;
 
-import ai.auctus.jokenpo.config.SwaggerConfig;
 import ai.auctus.jokenpo.dto.*;
 import ai.auctus.jokenpo.service.JogoService;
 import io.swagger.annotations.Api;
@@ -14,11 +13,13 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 
+import static ai.auctus.jokenpo.config.SwaggerConfig.SwaggerTags.JOGO;
+
 @Validated
 @RequiredArgsConstructor
 @RestController
 @RequestMapping(path = "/v1/partida", produces = MediaType.APPLICATION_JSON_VALUE)
-@Api(tags = SwaggerConfig.SwaggerTags.JOGO)
+@Api(tags = JOGO)
 public class PartidaResource {
 
     private final JogoService jogoService;
