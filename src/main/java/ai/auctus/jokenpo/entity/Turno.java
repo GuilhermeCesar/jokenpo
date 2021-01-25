@@ -6,6 +6,7 @@ import javax.persistence.*;
 
 import static java.lang.Boolean.FALSE;
 import static javax.persistence.GenerationType.IDENTITY;
+import static org.springframework.data.mapping.Alias.ofNullable;
 
 @Data
 @Entity
@@ -28,4 +29,8 @@ public class Turno {
     @Builder.Default
     @Column
     private Boolean finalizado = FALSE;
+
+    public Long getIdPartida() {
+        return ofNullable(this.partida).isPresent() ? this.partida.getId() : null;
+    }
 }

@@ -18,7 +18,7 @@ public class JogadaDTO {
     JokenpoEnum jokenpoEnum;
     Long idJogador;
     Long idJogo;
-    Long idJogada;
+    Long idPartida;
 
     @JsonPOJOBuilder(withPrefix = "")
     public static class JacksonBuilder {

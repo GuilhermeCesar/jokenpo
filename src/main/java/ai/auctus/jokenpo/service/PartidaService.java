@@ -3,7 +3,8 @@ package ai.auctus.jokenpo.service;
 import ai.auctus.jokenpo.dto.CadastroJogoDTO;
 import ai.auctus.jokenpo.dto.FazerJogadaDTO;
 import ai.auctus.jokenpo.dto.JogadaDTO;
-import ai.auctus.jokenpo.dto.JogoDTO;
+import ai.auctus.jokenpo.dto.PartidaoDTO;
+import ai.auctus.jokenpo.entity.Jogada;
 import ai.auctus.jokenpo.entity.Jogador;
 import ai.auctus.jokenpo.entity.Partida;
 import ai.auctus.jokenpo.entity.Turno;
@@ -14,9 +15,12 @@ import ai.auctus.jokenpo.repository.PartidaRepository;
 import ai.auctus.jokenpo.repository.TurnoRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import static java.lang.Boolean.FALSE;
+import static org.hibernate.internal.util.collections.CollectionHelper.isEmpty;
+import static org.springframework.http.HttpStatus.CONFLICT;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 @Slf4j
@@ -29,7 +33,7 @@ public class PartidaService {
     private final JogadaRepository jogadaRepository;
     private final TurnoRepository turnoRepository;
 
-    public JogoDTO cadastrarJogo(CadastroJogoDTO jogoDTO) {
+    public PartidaoDTO cadastrarJogo(CadastroJogoDTO jogoDTO) {
         var partida = Partida
                 .builder()
                 .nome(jogoDTO.getNome())
@@ -43,52 +47,47 @@ public class PartidaService {
 
         this.turnoRepository.save(turno);
 
-        return JogoDTO
+        return PartidaoDTO
                 .builder()
                 .idJogo(partida.getId())
                 .nome(partida.getNome())
                 .build();
     }
 
-    private Partida getJogo(Long idJogo) {
-        final var jogo = this.partidaRepository.findById(idJogo);
+    private Turno getTurnoAtivoDaPartida(Long idPartida) {
+        final var turno = this.turnoRepository.buscarUltimoTurnoSePartidaAtiva(idPartida, PageRequest.of(0, 1));
 
-        if (jogo.isEmpty()) {
+        if (isEmpty(turno))
             throw new PartidaException(NOT_FOUND, "Jogo informado não existe");
-        } else if (FALSE.equals(jogo.get().getAtivo())) {
-            throw new PartidaException(NOT_FOUND, "Jogo finalizado");
-        }
-        return jogo.get();
+
+        return turno.get(0);
     }
 
-    public JogadaDTO jogar(Long idJogo, FazerJogadaDTO fazerJogadaDTO) {
-        final var jogo = this.getJogo(idJogo);
+    public JogadaDTO jogar(Long idpartida, FazerJogadaDTO fazerJogadaDTO) {
+        final var turno = this.getTurnoAtivoDaPartida(idpartida);
         final var jogador = this.getJogador(fazerJogadaDTO);
 
-//        this.jogadaRepository
-//                .findJogadaByJogadorAndJogo(jogador, jogo)
-//                .ifPresent(jogada -> {
-//                    throw new PartidaException(CONFLICT, "Você já jogou nessa partida");
-//                });
+        this.jogadaRepository
+                .findJogadaByJogadorAndTurno(jogador, turno)
+                .ifPresent(jogada -> {
+                    throw new PartidaException(CONFLICT, "Você já jogou nesse turno");
+                });
 
-//        var jogada = Jogada
-//                .builder()
-//                .jogada(fazerJogadaDTO.getJokenpoEnum())
-//                .jogo(jogo)
-//                .jogador(jogador)
-//                .build();
+        var jogada = Jogada
+                .builder()
+                .jogada(fazerJogadaDTO.getJokenpoEnum())
+                .turno(turno)
+                .jogador(jogador)
+                .build();
 
-//        this.jogadaRepository.save(jogada);
+        this.jogadaRepository.save(jogada);
 
-//        return JogadaDTO
-//                .builder()
-//                .idJogada(jogada.getId())
-//                .idJogador(jogador.getId())
-//                .idJogo(jogo.getId())
-//                .jokenpoEnum(fazerJogadaDTO.getJokenpoEnum())
-//                .build();
-
-        return null;
+        return JogadaDTO
+                .builder()
+                .idPartida(turno.getIdPartida())
+                .idJogador(jogador.getId())
+                .jokenpoEnum(fazerJogadaDTO.getJokenpoEnum())
+                .build();
     }
 
     private Jogador getJogador(FazerJogadaDTO fazerJogadaDTO) {

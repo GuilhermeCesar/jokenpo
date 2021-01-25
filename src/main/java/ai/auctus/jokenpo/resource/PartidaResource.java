@@ -30,7 +30,7 @@ public class PartidaResource {
             @ApiResponse(code = 500, message = "Falha ao cadastrar jogador", response = ErrorMessage.class)
     })
     @PostMapping
-    public JogoDTO criar(@Valid @RequestBody CadastroJogoDTO cadastroJogadorDTO) {
+    public PartidaoDTO criar(@Valid @RequestBody CadastroJogoDTO cadastroJogadorDTO) {
         return this.jogoService.cadastrarJogo(cadastroJogadorDTO);
     }
 
@@ -39,8 +39,8 @@ public class PartidaResource {
             @ApiResponse(code = 201, message = "Sucesso", response = JogadaDTO.class),
             @ApiResponse(code = 500, message = "Falha ao cadastrar jogador", response = ErrorMessage.class)
     })
-    @PostMapping("/jogar/{idJogo}")
-    public JogadaDTO jogar(@PathVariable("idJogo") Long idJogo, @RequestBody FazerJogadaDTO fazerJogadaDTO) {
+    @PostMapping("/jogar/{idPartida}")
+    public JogadaDTO jogar(@PathVariable("idPartida") Long idJogo, @RequestBody FazerJogadaDTO fazerJogadaDTO) {
         return this.jogoService.jogar(idJogo, fazerJogadaDTO);
     }
 }
