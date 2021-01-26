@@ -1,19 +1,32 @@
 package ai.auctus.jokenpo.dto;
 
 import ai.auctus.jokenpo.service.JokenpoEnum;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
+import io.swagger.annotations.ApiModel;
+import lombok.*;
 
-@NoArgsConstructor
-@AllArgsConstructor
-@Data
+@Value
+@With
+@JsonDeserialize(builder = PartidaDTO.JacksonBuilder.class)
 @Builder(builderClassName = "JacksonBuilder")
+@ApiModel(description = "Mensagem de erro padrão do sistema")
+@AllArgsConstructor
 public class ResultadoDTO {
 
-    private Long idJogadorVencedor;
-    private JokenpoEnum jokenpoEnum;
-    private Long idPartida;
-    private String mensagem;
+    Long idJogadorGanhador;
+    JokenpoEnum jokenpoEnum;
+    Long idPartida;
+    String mensagem;
+
+    public ResultadoDTO(Long idJogadorGanhador, JokenpoEnum jokenpoEnum, Long idPartida) {
+        this.idJogadorGanhador = idJogadorGanhador;
+        this.jokenpoEnum = jokenpoEnum;
+        this.idPartida = idPartida;
+        this.mensagem = "";
+    }
+
+    @JsonPOJOBuilder(withPrefix = "")
+    public static class JacksonBuilder {
+    }
 }

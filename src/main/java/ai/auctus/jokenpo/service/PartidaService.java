@@ -12,15 +12,12 @@ import ai.auctus.jokenpo.repository.PartidaRepository;
 import ai.auctus.jokenpo.repository.TurnoRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 
 import static java.lang.Boolean.FALSE;
-import static org.hibernate.internal.util.collections.CollectionHelper.isEmpty;
-import static org.springframework.http.HttpStatus.CONFLICT;
-import static org.springframework.http.HttpStatus.NOT_FOUND;
+import static org.springframework.http.HttpStatus.*;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -53,17 +50,8 @@ public class PartidaService {
                 .build();
     }
 
-    private Turno getTurnoAtivoDaPartida(Long idPartida) {
-        final var turno = this.turnoRepository.buscarUltimoTurnoSePartidaAtiva(idPartida, PageRequest.of(0, 1));
-
-        if (isEmpty(turno))
-            throw new PartidaException(NOT_FOUND, "Jogo informado não existe ou foi desativado");
-
-        return turno.get(0);
-    }
-
-    public JogadaDTO jogar(Long idpartida, FazerJogadaDTO fazerJogadaDTO) {
-        final var turno = this.getTurnoAtivoDaPartida(idpartida);
+    public JogadaDTO jogar(Long idPartida, FazerJogadaDTO fazerJogadaDTO) {
+        final Turno turno = getTurnoAtivo(idPartida);
         final var jogador = this.getJogador(fazerJogadaDTO);
 
         this.jogadaRepository
@@ -89,6 +77,14 @@ public class PartidaService {
                 .build();
     }
 
+    private Turno getTurnoAtivo(Long idPartida) {
+        final var turno = this.turnoRepository.buscarUltimoTurnoSePartidaAtiva(idPartida);
+        if (turno.isEmpty()) {
+            throw new PartidaException(INTERNAL_SERVER_ERROR, "Você não pode jogar em uma partida encerrada");
+        }
+        return turno.get();
+    }
+
     private Jogador getJogador(FazerJogadaDTO fazerJogadaDTO) {
         final var jogador = this.jogadorRepository.findById(fazerJogadaDTO.getIdJogador());
 
@@ -102,9 +98,12 @@ public class PartidaService {
 
 
     public ResultadoDTO resultado(Long idPartida) {
-        final var turno = this.getTurnoAtivoDaPartida(idPartida);
+        final var turno = this.turnoRepository.buscarUltimoTurnoSePartidaAtiva(idPartida);
+        if (turno.isEmpty()) {
+            return getBuscaResultadoVitorioso(idPartida);
+        }
 
-        final var jogadasDoTurno = this.jogadaRepository.findJogadaByTurno(turno);
+        final var jogadasDoTurno = this.jogadaRepository.findJogadaByTurno(turno.get());
         var jogadas = new ArrayList<>(jogadasDoTurno);
 
         for (int i = 0; i < jogadasDoTurno.size(); i++) {
@@ -116,21 +115,30 @@ public class PartidaService {
                     .findAny();
 
             if (venceOuEmpataComJogadaAtual.isEmpty()) {
-                return vencedor(turno, jogada);
+                return vencedor(turno.get(), jogada);
             }
             jogadas = new ArrayList<>(jogadasDoTurno);
         }
-        return empate(turno);
+        return empate(turno.get());
+    }
+
+    private ResultadoDTO getBuscaResultadoVitorioso(Long idPartida) {
+        var resultado = this.jogadaRepository.buscaResultadoVitorioso(idPartida);
+        return resultado.withMensagem("Temos um vencedor");
     }
 
     private ResultadoDTO vencedor(Turno turno, Jogada jogada) {
         var partida = turno.getPartida();
         partida.withGanhador(jogada.getJogador());
+        return getVencedor(partida, jogada, jogada.getJogador());
+    }
+
+    private ResultadoDTO getVencedor(Partida partida, Jogada jogada, Jogador jogador) {
         return ResultadoDTO
                 .builder()
                 .mensagem("Temos um vencedor")
-                .idJogadorVencedor(jogada.getJogador().getId())
-                .idPartida(turno.getIdPartida())
+                .idJogadorGanhador(jogador.getId())
+                .idPartida(partida.getId())
                 .jokenpoEnum(jogada.getJogada())
                 .build();
     }
@@ -152,6 +160,4 @@ public class PartidaService {
                 .build();
         this.turnoRepository.save(novoTurno);
     }
-
-
 }

@@ -2,6 +2,7 @@ package ai.auctus.jokenpo.service;
 
 import ai.auctus.jokenpo.entity.Jogada;
 import ai.auctus.jokenpo.entity.Jogador;
+import ai.auctus.jokenpo.entity.Partida;
 import ai.auctus.jokenpo.entity.Turno;
 import ai.auctus.jokenpo.helper.MessageHelper;
 import ai.auctus.jokenpo.repository.JogadaRepository;
@@ -12,9 +13,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.domain.PageRequest;
 
 import java.util.List;
+import java.util.Optional;
 
 import static ai.auctus.jokenpo.service.JokenpoEnum.LAGARATO;
 import static ai.auctus.jokenpo.service.JokenpoEnum.PAPEL;
@@ -41,10 +42,16 @@ class PartidaServiceTest {
     void achaVencedorPapel() {
         final var idJogadorVencedor = 7L;
         final var idPartida = 10L;
+        final var partida = Partida
+                .builder()
+                .id(idPartida)
+                .build();
+
         final var turno = Turno
                 .builder()
                 .id(10L)
                 .finalizado(FALSE)
+                .partida(partida)
                 .build();
 
         final var jogador1 = Jogador
@@ -63,7 +70,6 @@ class PartidaServiceTest {
                 .ativo(TRUE)
                 .id(8L)
                 .build();
-
         final var jogada2 = Jogada
                 .builder()
                 .jogada(JokenpoEnum.PEDRA)
@@ -76,22 +82,21 @@ class PartidaServiceTest {
                 .ativo(TRUE)
                 .id(4L)
                 .build();
-
         final var jogada3 = Jogada
                 .builder()
                 .jogada(JokenpoEnum.SPOCK)
-                .jogador(jogador2)
+                .jogador(jogador3)
                 .build();
 
-        when(this.turnoRepository.buscarUltimoTurnoSePartidaAtiva(idPartida, PageRequest.of(0, 1)))
-                .thenReturn(List.of(turno));
+        when(this.turnoRepository.buscarUltimoTurnoSePartidaAtiva(idPartida))
+                .thenReturn(Optional.of(turno));
         when(this.jogadaRepository.findJogadaByTurno(any()))
                 .thenReturn(List.of(jogada1, jogada2, jogada3));
 
         var resultado = this.partidaService.resultado(idPartida);
 
         Assertions.assertEquals(PAPEL, resultado.getJokenpoEnum());
-        Assertions.assertEquals(idJogadorVencedor, resultado.getIdJogadorVencedor());
+        Assertions.assertEquals(idJogadorVencedor, resultado.getIdJogadorGanhador());
     }
 
 
@@ -122,7 +127,6 @@ class PartidaServiceTest {
                 .ativo(TRUE)
                 .id(8L)
                 .build();
-
         final var jogada2 = Jogada
                 .builder()
                 .jogada(JokenpoEnum.PEDRA)
@@ -135,15 +139,14 @@ class PartidaServiceTest {
                 .ativo(TRUE)
                 .id(4L)
                 .build();
-
         final var jogada3 = Jogada
                 .builder()
                 .jogada(JokenpoEnum.SPOCK)
-                .jogador(jogador2)
+                .jogador(jogador3)
                 .build();
 
-        when(this.turnoRepository.buscarUltimoTurnoSePartidaAtiva(idPartida, PageRequest.of(0, 1)))
-                .thenReturn(List.of(turno));
+        when(this.turnoRepository.buscarUltimoTurnoSePartidaAtiva(idPartida))
+                .thenReturn(Optional.of(turno));
         when(this.jogadaRepository.findJogadaByTurno(any()))
                 .thenReturn(List.of(jogada1, jogada2, jogada3));
 
@@ -151,6 +154,6 @@ class PartidaServiceTest {
         Assertions.assertNotNull(resultado.getMensagem());
         Assertions.assertEquals(mensagem, resultado.getMensagem());
         Assertions.assertNull(resultado.getJokenpoEnum());
-        Assertions.assertNull(resultado.getIdJogadorVencedor());
+        Assertions.assertNull(resultado.getIdJogadorGanhador());
     }
 }
