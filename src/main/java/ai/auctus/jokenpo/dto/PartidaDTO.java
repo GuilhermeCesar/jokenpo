@@ -9,10 +9,10 @@ import lombok.With;
 
 @Value
 @With
-@JsonDeserialize(builder = PartidaoDTO.JacksonBuilder.class)
+@JsonDeserialize(builder = PartidaDTO.JacksonBuilder.class)
 @Builder(builderClassName = "JacksonBuilder")
 @ApiModel(description = "Mensagem de erro padrão do sistema")
-public class PartidaoDTO {
+public class PartidaDTO {
 
     Long idJogo;
     String nome;

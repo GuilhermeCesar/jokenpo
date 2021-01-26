@@ -1,9 +1,6 @@
 package ai.auctus.jokenpo.service;
 
-import ai.auctus.jokenpo.dto.CadastroJogoDTO;
-import ai.auctus.jokenpo.dto.FazerJogadaDTO;
-import ai.auctus.jokenpo.dto.JogadaDTO;
-import ai.auctus.jokenpo.dto.PartidaoDTO;
+import ai.auctus.jokenpo.dto.*;
 import ai.auctus.jokenpo.entity.Jogada;
 import ai.auctus.jokenpo.entity.Jogador;
 import ai.auctus.jokenpo.entity.Partida;
@@ -17,6 +14,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
 
 import static java.lang.Boolean.FALSE;
 import static org.hibernate.internal.util.collections.CollectionHelper.isEmpty;
@@ -33,7 +32,7 @@ public class PartidaService {
     private final JogadaRepository jogadaRepository;
     private final TurnoRepository turnoRepository;
 
-    public PartidaoDTO cadastrarJogo(CadastroJogoDTO jogoDTO) {
+    public PartidaDTO cadastrarJogo(CadastroJogoDTO jogoDTO) {
         var partida = Partida
                 .builder()
                 .nome(jogoDTO.getNome())
@@ -47,7 +46,7 @@ public class PartidaService {
 
         this.turnoRepository.save(turno);
 
-        return PartidaoDTO
+        return PartidaDTO
                 .builder()
                 .idJogo(partida.getId())
                 .nome(partida.getNome())
@@ -58,7 +57,7 @@ public class PartidaService {
         final var turno = this.turnoRepository.buscarUltimoTurnoSePartidaAtiva(idPartida, PageRequest.of(0, 1));
 
         if (isEmpty(turno))
-            throw new PartidaException(NOT_FOUND, "Jogo informado não existe");
+            throw new PartidaException(NOT_FOUND, "Jogo informado não existe ou foi desativado");
 
         return turno.get(0);
     }
@@ -99,6 +98,59 @@ public class PartidaService {
             throw new PartidaException(NOT_FOUND, "Jogador está inativo");
         }
         return jogador.get();
+    }
+
+
+    public ResultadoDTO resultado(Long idPartida) {
+        final var turno = this.getTurnoAtivoDaPartida(idPartida);
+
+        final var jogadasDoTurno = this.jogadaRepository.findJogadaByTurno(turno);
+        var jogadas = new ArrayList<>(jogadasDoTurno);
+
+        for (int i = 0; i < jogadasDoTurno.size(); i++) {
+            var jogada = jogadas.remove(i);
+
+            var venceOuEmpataComJogadaAtual = jogadas
+                    .parallelStream()
+                    .filter(jogadaFilter -> jogadaFilter.venceOuEmpata(jogada.getJogada()))
+                    .findAny();
+
+            if (venceOuEmpataComJogadaAtual.isEmpty()) {
+                return vencedor(turno, jogada);
+            }
+            jogadas = new ArrayList<>(jogadasDoTurno);
+        }
+        return empate(turno);
+    }
+
+    private ResultadoDTO vencedor(Turno turno, Jogada jogada) {
+        var partida = turno.getPartida();
+        partida.withGanhador(jogada.getJogador());
+        return ResultadoDTO
+                .builder()
+                .mensagem("Temos um vencedor")
+                .idJogadorVencedor(jogada.getJogador().getId())
+                .idPartida(turno.getIdPartida())
+                .jokenpoEnum(jogada.getJogada())
+                .build();
+    }
+
+    private ResultadoDTO empate(Turno turno) {
+        comecaNovoTurno(turno);
+        return ResultadoDTO
+                .builder()
+                .mensagem("Houve um empate, novo turno começa")
+                .build();
+    }
+
+    private void comecaNovoTurno(Turno turno) {
+        turno.setFinalizado(true);
+        this.turnoRepository.save(turno);
+        final var novoTurno = Turno
+                .builder()
+                .partida(turno.getPartida())
+                .build();
+        this.turnoRepository.save(novoTurno);
     }
 
 

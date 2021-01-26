@@ -33,4 +33,8 @@ public class Jogada {
     @ManyToOne
     @JoinColumn(name = "id_turno")
     private Turno turno;
+
+    public Boolean venceOuEmpata(JokenpoEnum jogada){
+        return this.jogada.venceOuEmpata(jogada);
+    }
 }

@@ -3,9 +3,10 @@ package ai.auctus.jokenpo.service;
 public enum JokenpoEnum implements Jokenpo {
     PEDRA {
         @Override
-        public Boolean vence(JokenpoEnum jokenpoEnum) {
+        public Boolean venceOuEmpata(JokenpoEnum jokenpoEnum) {
             return jokenpoEnum.equals(TESOURA)
-                    || jokenpoEnum.equals(LAGARATO);
+                    || jokenpoEnum.equals(LAGARATO)
+                    || jokenpoEnum.equals(PEDRA);
         }
 
         @Override
@@ -16,9 +17,10 @@ public enum JokenpoEnum implements Jokenpo {
     },
     PAPEL {
         @Override
-        public Boolean vence(JokenpoEnum jokenpoEnum) {
+        public Boolean venceOuEmpata(JokenpoEnum jokenpoEnum) {
             return jokenpoEnum.equals(SPOCK)
-                    || jokenpoEnum.equals(PEDRA);
+                    || jokenpoEnum.equals(PEDRA)
+                    || jokenpoEnum.equals(PAPEL);
         }
 
         @Override
@@ -28,9 +30,10 @@ public enum JokenpoEnum implements Jokenpo {
         }
     }, TESOURA {
         @Override
-        public Boolean vence(JokenpoEnum jokenpoEnum) {
+        public Boolean venceOuEmpata(JokenpoEnum jokenpoEnum) {
             return jokenpoEnum.equals(PAPEL)
-                    || jokenpoEnum.equals(LAGARATO);
+                    || jokenpoEnum.equals(LAGARATO)
+                    || jokenpoEnum.equals(TESOURA);
         }
 
         @Override
@@ -40,9 +43,10 @@ public enum JokenpoEnum implements Jokenpo {
         }
     }, LAGARATO {
         @Override
-        public Boolean vence(JokenpoEnum jokenpoEnum) {
+        public Boolean venceOuEmpata(JokenpoEnum jokenpoEnum) {
             return jokenpoEnum.equals(PAPEL)
-                    || jokenpoEnum.equals(SPOCK);
+                    || jokenpoEnum.equals(SPOCK)
+                    || jokenpoEnum.equals(LAGARATO);
         }
 
         @Override
@@ -52,9 +56,10 @@ public enum JokenpoEnum implements Jokenpo {
         }
     }, SPOCK {
         @Override
-        public Boolean vence(JokenpoEnum jokenpoEnum) {
+        public Boolean venceOuEmpata(JokenpoEnum jokenpoEnum) {
             return jokenpoEnum.equals(TESOURA)
-                    || jokenpoEnum.equals(PEDRA);
+                    || jokenpoEnum.equals(PEDRA)
+                    || jokenpoEnum.equals(SPOCK);
         }
 
         @Override
