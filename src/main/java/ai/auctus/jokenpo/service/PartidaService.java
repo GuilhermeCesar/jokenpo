@@ -6,17 +6,17 @@ import ai.auctus.jokenpo.entity.Jogador;
 import ai.auctus.jokenpo.entity.Partida;
 import ai.auctus.jokenpo.entity.Turno;
 import ai.auctus.jokenpo.exception.PartidaException;
-import ai.auctus.jokenpo.repository.JogadaRepository;
-import ai.auctus.jokenpo.repository.JogadorRepository;
-import ai.auctus.jokenpo.repository.PartidaRepository;
-import ai.auctus.jokenpo.repository.TurnoRepository;
+import ai.auctus.jokenpo.repository.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 
 import static java.lang.Boolean.FALSE;
+import static java.util.Optional.ofNullable;
 import static org.springframework.http.HttpStatus.*;
 
 @Slf4j
@@ -94,6 +94,22 @@ public class PartidaService {
             throw new PartidaException(NOT_FOUND, "Jogador está inativo");
         }
         return jogador.get();
+    }
+
+    public Page<PartidaDTO> getPartida(Long idPartida, Boolean ativo, Pageable pageable){
+        final var partidaSpec = PartidaSpec
+                .builder()
+                .ativo(ofNullable(ativo))
+                .id(ofNullable(idPartida))
+                .build();
+        final var partidaPage = this.partidaRepository.findAll(partidaSpec, pageable);
+
+        return  partidaPage.map(partida -> PartidaDTO
+                .builder()
+                .nome(partida.getNome())
+                .idJogo(partida.getId())
+                .ativa(partida.getAtivo())
+                .build());
     }
 
 

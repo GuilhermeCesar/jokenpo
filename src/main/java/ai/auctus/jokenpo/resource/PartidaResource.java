@@ -7,6 +7,8 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -22,7 +24,7 @@ import static ai.auctus.jokenpo.config.SwaggerConfig.SwaggerTags.JOGO;
 @Api(tags = JOGO)
 public class PartidaResource {
 
-    private final PartidaService jogoService;
+    private final PartidaService partidaService;
 
     @ApiOperation(value = "Criar jogo")
     @ApiResponses({
@@ -31,7 +33,7 @@ public class PartidaResource {
     })
     @PostMapping
     public PartidaDTO criar(@Valid @RequestBody CadastroJogoDTO cadastroJogadorDTO) {
-        return this.jogoService.cadastrarJogo(cadastroJogadorDTO);
+        return this.partidaService.cadastrarJogo(cadastroJogadorDTO);
     }
 
     @ApiOperation(value = "Jogar")
@@ -41,7 +43,7 @@ public class PartidaResource {
     })
     @PostMapping("/{idPartida}/jogar")
     public JogadaDTO jogar(@PathVariable("idPartida") Long idPartida, @RequestBody FazerJogadaDTO fazerJogadaDTO) {
-        return this.jogoService.jogar(idPartida, fazerJogadaDTO);
+        return this.partidaService.jogar(idPartida, fazerJogadaDTO);
     }
 
     @ApiOperation(value = "Retorna o resultado do jogo")
@@ -50,7 +52,19 @@ public class PartidaResource {
             @ApiResponse(code = 500, message = "Falha ao cadastrar jogador", response = ErrorMessage.class)
     })
     @GetMapping("/{idPartida}/resultado")
-    public ResultadoDTO buscaResultado(@PathVariable("idPartida") Long idPartida){
-        return this.jogoService.resultado(idPartida);
+    public ResultadoDTO buscaResultado(@PathVariable("idPartida") Long idPartida) {
+        return this.partidaService.resultado(idPartida);
+    }
+
+    @ApiOperation(value = "Busca partida por filtro")
+    @ApiResponses({
+            @ApiResponse(code = 201, message = "Sucesso", response = Page.class),
+            @ApiResponse(code = 500, message = "Falha ao cadastrar jogador", response = ErrorMessage.class)
+    })
+    @GetMapping("/busca")
+    public Page<PartidaDTO> buscaPartidaPorFiltro(@RequestParam(name = "idPartida", required = false) Long idJogador,
+                                                  @RequestParam(name = "ativo", required = false) Boolean ativo,
+                                                  Pageable pageable) {
+        return this.partidaService.getPartida(idJogador, ativo, pageable);
     }
 }

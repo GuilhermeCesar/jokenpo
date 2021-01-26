@@ -52,7 +52,8 @@ public class JogadorResource {
         return this.jogadorService.buscaJogador(idJogador);
     }
 
-    @GetMapping("/find")
+    @ApiOperation(value = "Busca jogador por filtro")
+    @GetMapping("/buscar")
     public Page<JogadorDTO> findJogador(@RequestParam(name = "nome", required = false) String nome,
                                         @RequestParam(name = "ativo", required = false) Boolean ativo,
                                         Pageable pageable) {
@@ -60,6 +61,7 @@ public class JogadorResource {
     }
 
     @ResponseStatus(OK)
+    @ApiOperation(value = "Busca jogador por id")
     @ApiResponses({
             @ApiResponse(code = 201, message = "Sucesso", response = JogadorDTO.class),
             @ApiResponse(code = 500, message = "Falha ao inativar", response = ErrorMessage.class)

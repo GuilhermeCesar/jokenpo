@@ -16,7 +16,7 @@ public class PartidaDTO {
 
     Long idJogo;
     String nome;
-    JogadorDTO jogadorDTO;
+    Boolean ativa;
 
     @JsonPOJOBuilder(withPrefix = "")
     public static class JacksonBuilder {
