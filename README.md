@@ -20,17 +20,12 @@ cd docker && docker-compose up
 <li>Na Raiz do projeto <code>mvn clean install</code></li>
 
 <h2>Aplicação</h2>
-<li>Rodar o spring na sua IDE, apenas a mensageria e o banco estão no docker</li>
+<li>Rodar o spring na sua IDE, apenas o banco estão no docker</li>
 <li>Utilizar branch master</li>
 <li>
     <a>http://localhost:8080/api/jokenpo/swagger-ui/index.html</a>
 </li>
 <li>Utilizar o profile default</li>
-<li>
-O Batch roda a cada 1 minutos, caso necessário altere em 
-<a href="batch/src/main/resources/application.yml"> application.yml</a> 
-</li>
-
 <h3 align="left">Languages and Tools:</h3>
 <p> 
     <a href="https://www.java.com" target="_blank"> 
