@@ -17,6 +17,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.List;
 import java.util.Optional;
 
+import static ai.auctus.jokenpo.helper.MessageHelper.ErrorCode.EMPATE;
 import static ai.auctus.jokenpo.service.JokenpoEnum.LAGARATO;
 import static ai.auctus.jokenpo.service.JokenpoEnum.PAPEL;
 import static java.lang.Boolean.FALSE;
@@ -149,6 +150,9 @@ class PartidaServiceTest {
                 .thenReturn(Optional.of(turno));
         when(this.jogadaRepository.findJogadaByTurno(any()))
                 .thenReturn(List.of(jogada1, jogada2, jogada3));
+
+        when(this.messageHelper.get(EMPATE))
+                .thenReturn(mensagem);
 
         var resultado = this.partidaService.resultado(idPartida);
         Assertions.assertNotNull(resultado.getMensagem());

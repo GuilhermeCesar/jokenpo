@@ -4,6 +4,7 @@ import ai.auctus.jokenpo.dto.CadastroJogadorDTO;
 import ai.auctus.jokenpo.dto.JogadorDTO;
 import ai.auctus.jokenpo.entity.Jogador;
 import ai.auctus.jokenpo.exception.JogadorException;
+import ai.auctus.jokenpo.helper.MessageHelper;
 import ai.auctus.jokenpo.repository.JogadorRepository;
 import ai.auctus.jokenpo.repository.JogadorSpec;
 import lombok.RequiredArgsConstructor;
@@ -12,6 +13,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import static ai.auctus.jokenpo.helper.MessageHelper.ErrorCode.ERROR_JOGADOR_NAO_ENCONTRADO;
 import static java.util.Optional.ofNullable;
 
 @RequiredArgsConstructor
@@ -19,6 +21,7 @@ import static java.util.Optional.ofNullable;
 public class JogadorService {
 
     private final JogadorRepository jogadorRepository;
+    private final MessageHelper messageHelper;
 
     public JogadorDTO cadastrarJogador(CadastroJogadorDTO cadastroJogadorDTO) {
         final var jogador = Jogador.builder()
@@ -41,14 +44,13 @@ public class JogadorService {
 
     public JogadorDTO buscaJogador(Long idJogador) {
         var jogador = this.jogadorRepository.findById(idJogador)
-                .orElseThrow(() -> new JogadorException(HttpStatus.NOT_FOUND, "Jogador não encontrado"));
-
+                .orElseThrow(() -> new JogadorException(HttpStatus.NOT_FOUND, this.messageHelper.get(ERROR_JOGADOR_NAO_ENCONTRADO)));
         return getJogadorDTO(jogador);
     }
 
     public JogadorDTO inativarJogador(Long idJogador) {
         var jogador = this.jogadorRepository.findById(idJogador)
-                .orElseThrow(() -> new JogadorException(HttpStatus.NOT_FOUND, "Jogador não encontrado"));
+                .orElseThrow(() -> new JogadorException(HttpStatus.NOT_FOUND, this.messageHelper.get(ERROR_JOGADOR_NAO_ENCONTRADO)));
 
         jogador = this.jogadorRepository.save(jogador.withAtivo(Boolean.FALSE));
 

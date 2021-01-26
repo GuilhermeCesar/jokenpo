@@ -6,6 +6,7 @@ import ai.auctus.jokenpo.entity.Jogador;
 import ai.auctus.jokenpo.entity.Partida;
 import ai.auctus.jokenpo.entity.Turno;
 import ai.auctus.jokenpo.exception.PartidaException;
+import ai.auctus.jokenpo.helper.MessageHelper;
 import ai.auctus.jokenpo.repository.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -15,6 +16,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 
+import static ai.auctus.jokenpo.helper.MessageHelper.ErrorCode.*;
 import static java.lang.Boolean.FALSE;
 import static java.util.Optional.ofNullable;
 import static org.springframework.http.HttpStatus.*;
@@ -28,6 +30,7 @@ public class PartidaService {
     private final JogadorRepository jogadorRepository;
     private final JogadaRepository jogadaRepository;
     private final TurnoRepository turnoRepository;
+    private final MessageHelper messageHelper;
 
     public PartidaDTO cadastrarJogo(CadastroJogoDTO jogoDTO) {
         var partida = Partida
@@ -80,7 +83,7 @@ public class PartidaService {
     private Turno getTurnoAtivo(Long idPartida) {
         final var turno = this.turnoRepository.buscarUltimoTurnoSePartidaAtiva(idPartida);
         if (turno.isEmpty()) {
-            throw new PartidaException(INTERNAL_SERVER_ERROR, "Você não pode jogar em uma partida encerrada");
+            throw new PartidaException(INTERNAL_SERVER_ERROR, this.messageHelper.get(ERROR_PARTIDA_ENCERRADA));
         }
         return turno.get();
     }
@@ -88,15 +91,13 @@ public class PartidaService {
     private Jogador getJogador(FazerJogadaDTO fazerJogadaDTO) {
         final var jogador = this.jogadorRepository.findById(fazerJogadaDTO.getIdJogador());
 
-        if (jogador.isEmpty()) {
-            throw new PartidaException(NOT_FOUND, "Jogador informado não existe");
-        } else if (FALSE.equals(jogador.get().getAtivo())) {
-            throw new PartidaException(NOT_FOUND, "Jogador está inativo");
+        if (jogador.isEmpty() || FALSE.equals(jogador.get().getAtivo())) {
+            throw new PartidaException(NOT_FOUND, this.messageHelper.get(ERROR_JOGADOR_NAO_ENCONTRADO));
         }
         return jogador.get();
     }
 
-    public Page<PartidaDTO> getPartida(Long idPartida, Boolean ativo, Pageable pageable){
+    public Page<PartidaDTO> getPartida(Long idPartida, Boolean ativo, Pageable pageable) {
         final var partidaSpec = PartidaSpec
                 .builder()
                 .ativo(ofNullable(ativo))
@@ -104,7 +105,7 @@ public class PartidaService {
                 .build();
         final var partidaPage = this.partidaRepository.findAll(partidaSpec, pageable);
 
-        return  partidaPage.map(partida -> PartidaDTO
+        return partidaPage.map(partida -> PartidaDTO
                 .builder()
                 .nome(partida.getNome())
                 .idJogo(partida.getId())
@@ -114,12 +115,12 @@ public class PartidaService {
 
 
     public ResultadoDTO resultado(Long idPartida) {
-        final var turno = this.turnoRepository.buscarUltimoTurnoSePartidaAtiva(idPartida);
-        if (turno.isEmpty()) {
+        final var turnoEmPartidaEmAndamento = this.turnoRepository.buscarUltimoTurnoSePartidaAtiva(idPartida);
+        if (turnoEmPartidaEmAndamento.isEmpty()) {
             return getBuscaResultadoVitorioso(idPartida);
         }
 
-        final var jogadasDoTurno = this.jogadaRepository.findJogadaByTurno(turno.get());
+        final var jogadasDoTurno = this.jogadaRepository.findJogadaByTurno(turnoEmPartidaEmAndamento.get());
         var jogadas = new ArrayList<>(jogadasDoTurno);
 
         for (int i = 0; i < jogadasDoTurno.size(); i++) {
@@ -131,16 +132,16 @@ public class PartidaService {
                     .findAny();
 
             if (venceOuEmpataComJogadaAtual.isEmpty()) {
-                return vencedor(turno.get(), jogada);
+                return vencedor(turnoEmPartidaEmAndamento.get(), jogada);
             }
             jogadas = new ArrayList<>(jogadasDoTurno);
         }
-        return empate(turno.get());
+        return empate(turnoEmPartidaEmAndamento.get());
     }
 
     private ResultadoDTO getBuscaResultadoVitorioso(Long idPartida) {
         var resultado = this.jogadaRepository.buscaResultadoVitorioso(idPartida);
-        return resultado.withMensagem("Temos um vencedor");
+        return resultado.withMensagem(this.messageHelper.get(SUCESSO_TEMOS_VENCEDOR));
     }
 
     private ResultadoDTO vencedor(Turno turno, Jogada jogada) {
@@ -152,7 +153,7 @@ public class PartidaService {
     private ResultadoDTO getVencedor(Partida partida, Jogada jogada, Jogador jogador) {
         return ResultadoDTO
                 .builder()
-                .mensagem("Temos um vencedor")
+                .mensagem(this.messageHelper.get(SUCESSO_TEMOS_VENCEDOR))
                 .idJogadorGanhador(jogador.getId())
                 .idPartida(partida.getId())
                 .jokenpoEnum(jogada.getJogada())
@@ -163,7 +164,7 @@ public class PartidaService {
         comecaNovoTurno(turno);
         return ResultadoDTO
                 .builder()
-                .mensagem("Houve um empate, novo turno começa")
+                .mensagem(this.messageHelper.get(EMPATE))
                 .build();
     }
 
